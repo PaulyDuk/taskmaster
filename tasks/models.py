@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 # Create your models here.
 
@@ -17,7 +18,7 @@ class Category(models.Model):
 class Task(models.Model):
     """Model representing a task."""
     title = models.CharField(max_length=200)
-    due_date = models.DateField()
+    due_date = models.DateTimeField()
     completed = models.BooleanField(default=False)
     category = models.ForeignKey(
         Category,
@@ -29,6 +30,11 @@ class Task(models.Model):
     
     def __str__(self):
         return self.title
+    
+    @property
+    def is_overdue(self):
+        """Check if the task is overdue (past due date and not completed)."""
+        return not self.completed and self.due_date < timezone.now()
     
     class Meta:
         ordering = ['due_date', '-created_at']
